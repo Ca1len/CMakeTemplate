@@ -1,9 +1,45 @@
-cmake_minimum_required(VERSION 3.25)
-project(ProjectName)
+cmake_minimum_required(VERSION 3.28)
 
-enable_testing()
+file(READ "./VERSION" project_version)
+string(STRIP ${project_version} project_version)
 
-add_subdirectory(./third-party/)
-add_subdirectory(./core/)
-add_subdirectory(./modules/)
-add_subdirectory(./tests/)
+project(
+  CMakeTemplate
+  VERSION ${project_version}
+  LANGUAGES CXX
+)
+
+list(APPEND CMAKE_MODULE_PATH ./cmake/)
+
+add_subdirectory(./CMakeTemplate/)
+
+# Run at end of top-level CMakeLists
+include(TargetsUtils)
+get_all_cmake_targets(project_targets ${CMAKE_CURRENT_LIST_DIR})
+message(STATUS "Project Targets: ${project_targets}")
+get_all_include_directories(project_includes "${project_targets}")
+message(STATUS "Project Includes: ${project_includes}")
+
+# Install
+include(GNUInstallDirs)
+install(
+  TARGETS ${project_targets} 
+  EXPORT ${PROJECT_NAME}Targets
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+)
+install(
+  DIRECTORY
+  ${project_includes}
+  DESTINATION
+  "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+include(InstallUtils)
+export_targets()
+install_configs()
+
+# CPack
+include(InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include(CPack)
