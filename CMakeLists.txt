@@ -23,10 +23,17 @@ message(STATUS "Project Includes: ${project_includes}")
 # Install
 include(GNUInstallDirs)
 install(
-  TARGETS ${project_targets} 
+  TARGETS ${project_targets}
   EXPORT ${PROJECT_NAME}Targets
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-)
+  RUNTIME # Following options apply to runtime artifacts.
+          COMPONENT Runtime
+  LIBRARY # Following options apply to library artifacts.
+          COMPONENT Runtime NAMELINK_COMPONENT Development
+  ARCHIVE # Following options apply to archive artifacts.
+          COMPONENT Development
+          DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+          FILE_SET HEADERS # Following options apply to file set HEADERS.
+          COMPONENT Development)
 install(
   DIRECTORY
   ${project_includes}
