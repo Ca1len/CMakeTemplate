@@ -5,9 +5,7 @@ set(phony_source_path ${CMAKE_CURRENT_BINARY_DIR}/phony.cxx)
 
 file(WRITE ${phony_source_path} "")
 
-set(sources
-  ${phony_source_path}
-)
+set(sources ${phony_source_path})
 
 add_library(${component_name} ${sources})
 
@@ -32,7 +30,7 @@ generate_export_header(
   CUSTOM_CONTENT_FROM_VARIABLE
   pragma_suppress_c4251)
 
-target_include_directories(${component_name} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export/>"
-  "$<INSTALL_INTERFACE:include/>"
-)
+target_include_directories(
+  ${component_name}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export/>"
+         "$<INSTALL_INTERFACE:include/>")
