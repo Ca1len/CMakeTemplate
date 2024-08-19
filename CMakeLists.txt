@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.28)
 
+file(READ "./VERSION" project_version)
+string(STRIP ${project_version} project_version)
+
 project(
-  asd
-  VERSION 0.1.0
+  CMakeTemplate
+  VERSION ${project_version}
   LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
+
+find_package(fmt REQUIRED)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/CMakeTemplate/)
 

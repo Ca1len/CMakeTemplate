@@ -1,0 +1,5 @@
+[cpp_info]
+[cpp_info.components]
+
+[cpp_info.components.base]
+libs = ["base"]

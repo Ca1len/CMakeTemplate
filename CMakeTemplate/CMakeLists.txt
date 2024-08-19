@@ -1,2 +1,1 @@
-add_subdirectory(./Base/)
-add_subdirectory(./Base2/)
+add_subdirectory(./base/)

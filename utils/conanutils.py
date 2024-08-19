@@ -4,6 +4,12 @@ from pathlib import Path
 from subprocess import run, PIPE
 from dataclasses import dataclass
 from typing import List
+from conan import ConanFile
+from conan.tools.files import load
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import pip._vendor.tomli as tomllib
 
 
 @dataclass
@@ -24,9 +30,12 @@ class Project:
             stdout=PIPE,
         )
         out = out.stderr.decode() + out.stdout.decode()
-        regexpr_version = "".join([s if s != "." else r"\." for s in self.version])
+        regexpr_version = "".join(
+            [s if s != "." else r"\." for s in self.version])
         regexpr = re.compile(
-            rf"Found \d+ pkg/version recipes matching {self.name}/{regexpr_version} in local cache",
+            rf"Found \d+ pkg/version recipes matching \
+            {self.name}/{regexpr_version} \
+            in local cache",
             re.MULTILINE,
         )
         match = regexpr.search(out)
@@ -44,11 +53,32 @@ def get_deps(projects: List[Project]):
                 continue
             checkout = project.checkout
             url = project.project_url
-            run(f"git clone {url} {name}", shell=True, cwd=tmp_path, check=True)
+            run(f"git clone {url} {name}",
+                shell=True, cwd=tmp_path, check=True)
             run(
                 f"git checkout {checkout}",
                 shell=True,
                 cwd=Path(tmp_path / name),
                 check=True,
             )
-            run(f"conan create {tmp_path / name} -b missing", shell=True, check=True)
+            run(f"conan create {tmp_path / name} -b missing",
+                shell=True, check=True)
+
+
+def parse_package_info(conanfile: ConanFile, path: Path):
+    data = tomllib.load(load(conanfile, path))
+
+    cpp_info = data.get("cpp_info")
+    if not cpp_info:
+        return
+
+    components = cpp_info.get("components")
+    if not components:
+        return
+
+    for component in components.keys():
+        conan_component = conanfile.cpp_info.components[component]
+        libs = component.get("libs")
+        if not libs:
+            continue
+        conan_component.libs = libs

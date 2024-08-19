@@ -1,0 +1,20 @@
+.idea/
+
+# ---- Cache ----
+.cache/
+
+# ---- visual studio ----
+.vs/
+.vscode/
+
+# ---- build ----
+build/
+cmake-build-*/
+test_package/build/
+test_package/CMakeUserPresets.json
+install/
+
+# ---- User presets ----
+.clangd
+CMakeLists.txt.user
+CMakeUserPresets.json

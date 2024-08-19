@@ -1,15 +1,14 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-import shutil
-import pathlib
+from conan.tools.files import load
+import os
 
 
 class CMakeTemplate(ConanFile):
     name = "cmake_template"
-    version = "0.0.0"
 
-    license = "Pawlin license."  # TODO: add real license
+    license = ""  # TODO: add real license
     author = "Alexey Eberil & Andrew Persin"
     url = ""
     description = ""  # TODO: add description
@@ -30,7 +29,14 @@ class CMakeTemplate(ConanFile):
         "README.md",
         "LICENSE",
         "VERSION",
+        "package_info.toml",
     )
+
+    def set_version(self):
+        try:
+            self.version = load(self, "VERSION").strip()
+        except FileNotFoundError:
+            self.version = load(self, "../VERSION").strip()
 
     def layout(self):
         cmake_layout(self)
@@ -46,25 +52,16 @@ class CMakeTemplate(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake_variables = {
-            "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-            "CMAKE_TOOLCHAIN_FILE": "generators/conan_toolchain.cmake",
-        }
-        cmake.configure(variables=cmake_variables)
-        pathlib.Path("../compile_commands").mkdir(parents=True, exist_ok=True)
-
-        if pathlib.Path("./compile_commands.json").exists():
-            shutil.copy(
-                "./compile_commands.json", "../compile_commands/compile_commands.json"
-            )
+        cmake.configure()
         cmake.build()
 
     def requirements(self):
-        pass
+        self.requires("fmt/9.1.0")
 
     def package(self):
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.components["Base"].libs = ["Base"]
+        # self.conanutils.parse_package_info(self, "package_info.toml")
+        self.cpp_info.components["base"].libs = ["base"]
