@@ -1,42 +1,30 @@
 cmake_minimum_required(VERSION 3.28)
 
-file(READ "./VERSION" project_version)
-string(STRIP ${project_version} project_version)
-
 project(
-  CMakeTemplate
-  VERSION ${project_version}
+  asd
+  VERSION 0.1.0
   LANGUAGES CXX)
 
-list(APPEND CMAKE_MODULE_PATH ./cmake/)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
-add_subdirectory(./CMakeTemplate/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/CMakeTemplate/)
 
-# Run after adding all components at top-level CMakeLists
-include(TargetsUtils)
-get_all_cmake_targets(project_targets ${CMAKE_CURRENT_LIST_DIR})
-message(STATUS "Project Targets: ${project_targets}")
-get_all_include_directories(project_includes "${project_targets}")
-message(STATUS "Project Includes: ${project_includes}")
+include(ComponentsUtils)
 
-# Install
-include(GNUInstallDirs)
+install_components(./CMakeTemplate/)
+
+include(CMakePackageConfigHelpers)
+configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in"
+               "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake" @ONLY)
+write_basic_package_version_file(
+  "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  VERSION ${CMAKE_PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
 install(
-  TARGETS ${project_targets}
-  EXPORT ${PROJECT_NAME}Targets
-  RUNTIME # Following options apply to runtime artifacts.
-          COMPONENT Runtime
-  LIBRARY # Following options apply to library artifacts.
-          COMPONENT Runtime NAMELINK_COMPONENT Development
-  ARCHIVE # Following options apply to archive artifacts.
-          COMPONENT Development
-          DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-          FILE_SET HEADERS # Following options apply to file set HEADERS.
-          COMPONENT Development)
-install(DIRECTORY ${project_includes} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-include(InstallUtils)
-export_targets()
-install_configs()
+  FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+        "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  COMPONENT ${PROJECT_NAME}_Development)
 
 # CPack
 include(InstallRequiredSystemLibraries)

@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+include(
+  ${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-@component_name@-config-version.cmake
+)
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-@component_name@-targets.cmake)
